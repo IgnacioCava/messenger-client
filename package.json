@@ -7,6 +7,7 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint",
+		"vercel-build": "prisma generate && prisma migrate deploy && next build",
 		"husky-setup": "yarn install husky && husky install && npx husky add .husky/pre-commit \"npx --no-install lint-staged\" && npx husky add .husky/commit-msg \"npx --no -- commitlint --edit ${1}\""
 	},
 	"lint-staged": {
