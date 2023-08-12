@@ -9,5 +9,7 @@
 	"arrowParens": "always",
 	"printWidth": 200,
 	"jsxSingleQuote": true,
-	"endOfLine": "auto"
+	"endOfLine": "auto",
+	"singleAttributePerLine": true
+
 }
