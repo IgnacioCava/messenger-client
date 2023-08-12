@@ -1,16 +1,13 @@
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+'use client'
 
-import { SingInGoogleButton, SingOutButton } from '../components/buttons'
+import { useSession } from 'next-auth/react'
 
-export default async function Home() {
-	const session = await getServerSession(authOptions)
-	console.log(session)
+import Auth from '@/components/Auth'
+import Chat from '@/components/Chat'
 
-	return (
-		<div className='flex flex-col'>
-			<p className='break-all'>{session?.user?.email}</p>
-			{session ? <SingOutButton /> : <SingInGoogleButton />}
-		</div>
-	)
+export default function Home() {
+	const { data: session, status } = useSession()
+
+	if (status === 'loading') return null
+	return <div className='flex flex-col'>{session?.user.username ? <Chat /> : <Auth />}</div>
 }

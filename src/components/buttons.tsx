@@ -1,23 +1,20 @@
 'use client'
-import { signIn, signOut } from "next-auth/react"
+import { signIn, signOut } from 'next-auth/react'
 
-const SingInGoogleButton = () => {
-    return( 
-        <button onClick={() => signIn('google')}>
-            Sign in
-        </button>
-    )
+const SignInGoogleButton = () => {
+	return (
+		<button className='bg-zinc-700 rounded p-1.5' onClick={() => signIn('google')}>
+			Sign in
+		</button>
+	)
 }
 
-const SingOutButton = () => {
-    return( 
-        <button onClick={() => signOut()}>
-            Sign out
-        </button>
-    )
+const SignOutButton = () => {
+	return (
+		<button className='bg-zinc-700 rounded p-1.5' onClick={() => signOut()}>
+			Sign out
+		</button>
+	)
 }
 
-export {
-    SingInGoogleButton,
-    SingOutButton
-}
+export { SignInGoogleButton, SignOutButton }
