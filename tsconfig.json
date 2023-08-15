@@ -22,7 +22,8 @@
     ],
     "paths": {
       "@/*": ["src/*"],
-      "@assets/*": ["public/*"]
+      "@assets/*": ["public/*"],
+      "@components": ["src/components/index"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/api/auth/[...nextauth].js"],
