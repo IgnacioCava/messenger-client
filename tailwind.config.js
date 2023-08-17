@@ -11,7 +11,7 @@ module.exports = {
 				'cl-xl': 'var(--chat-list-xl)',
 				'cl-lg': 'var(--chat-list-lg)',
 				'cl-md': 'var(--chat-list-md)',
-				'app-max': '1280px'
+				'app-max': '1400px'
 			},
 			minWidth: {
 				'cl-xl': 'var(--chat-list-xl)',
@@ -19,7 +19,7 @@ module.exports = {
 				'cl-md': 'var(--chat-list-md)'
 			},
 			maxWidth: {
-				'app-max': '1280px'
+				'app-max': '1400px'
 			},
 			animation: {
 				anim: 'var(--anim)',
