@@ -1,6 +1,6 @@
-import {UserIcon} from '@components'
+import { UserIcon } from '@components'
 
-export const User = ({ name = 'test user', message = 'some random message', time = '3:12 PM' }: { name?: string; message?: string; time?: string }) => {
+export const User = ({ name = 'test user', message, time }: { name?: string; message?: string; time?: string }) => {
 	return (
 		<div className='w-full flex p-3 hover:bg-zinc-700 gap-2 items-center'>
 			<UserIcon />

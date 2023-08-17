@@ -9,7 +9,7 @@ import { useSession } from 'next-auth/react'
 
 interface AuthProps {}
 
-const Auth: React.FC<AuthProps> = () => {
+export const Auth: React.FC<AuthProps> = () => {
 	const { data: session, update } = useSession()
 	const [username, setUsername] = useState('')
 
@@ -37,10 +37,7 @@ const Auth: React.FC<AuthProps> = () => {
 			{session ? (
 				<>
 					<p>Create username</p>
-					<input
-						className='text-black'
-						onChange={(event) => setUsername(event.target.value)}
-					/>
+					<input className='text-black' onChange={(event) => setUsername(event.target.value)} />
 					<button onClick={onSubmit}>Send</button>
 					<SignOutButton />
 				</>
@@ -53,5 +50,3 @@ const Auth: React.FC<AuthProps> = () => {
 		</div>
 	)
 }
-
-export default Auth

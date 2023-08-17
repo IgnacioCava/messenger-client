@@ -14,6 +14,11 @@ export type Scalars = {
 	Float: { input: number; output: number }
 }
 
+export type CreateConversationResponse = {
+	__typename?: 'CreateConversationResponse'
+	conversationId?: Maybe<Scalars['String']['output']>
+}
+
 export type CreateUsernameResponse = {
 	__typename?: 'CreateUsernameResponse'
 	error?: Maybe<Scalars['String']['output']>
@@ -22,7 +27,12 @@ export type CreateUsernameResponse = {
 
 export type Mutation = {
 	__typename?: 'Mutation'
+	createConversation?: Maybe<CreateConversationResponse>
 	createUsername?: Maybe<CreateUsernameResponse>
+}
+
+export type MutationCreateConversationArgs = {
+	participantIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
 
 export type MutationCreateUsernameArgs = {
@@ -31,11 +41,17 @@ export type MutationCreateUsernameArgs = {
 
 export type Query = {
 	__typename?: 'Query'
-	searchUsers?: Maybe<Array<Maybe<User>>>
+	searchUsers?: Maybe<Array<SearchedUser>>
 }
 
 export type QuerySearchUsersArgs = {
 	username?: InputMaybe<Scalars['String']['input']>
+}
+
+export type SearchedUser = {
+	__typename?: 'SearchedUser'
+	id: Scalars['String']['output']
+	username: Scalars['String']['output']
 }
 
 export type Subscription = {
@@ -45,6 +61,6 @@ export type Subscription = {
 
 export type User = {
 	__typename?: 'User'
-	id?: Maybe<Scalars['String']['output']>
-	username?: Maybe<Scalars['String']['output']>
+	id: Scalars['String']['output']
+	username: Scalars['String']['output']
 }
