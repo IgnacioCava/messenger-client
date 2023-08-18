@@ -1,11 +1,11 @@
 'use client'
 
-import { SignInGoogleButton, SignOutButton } from '../buttons'
-import { useState } from 'react'
-import { useMutation } from '@apollo/client'
 import UserOperations from '@/graphql/operations/user'
-import { MutationCreateUsernameArgs, Mutation } from '@/graphql/types'
+import { Mutation, MutationCreateUsernameArgs } from '@/graphql/types'
+import { useMutation } from '@apollo/client'
 import { useSession } from 'next-auth/react'
+import { useState } from 'react'
+import { SignInGoogleButton, SignOutButton } from '../buttons'
 
 interface AuthProps {}
 
@@ -16,13 +16,13 @@ export const Auth: React.FC<AuthProps> = () => {
 	const onSubmit = async () => {
 		if (!username) return
 		try {
-			const { data } = await createUsername({ variables: { username } })
-
-			if (!data?.createUsername) throw new Error()
-			if (data.createUsername.error) {
-				const { error } = data.createUsername
-				throw new Error(error)
-			}
+			await createUsername({
+				variables: { username },
+				onCompleted: () => update(),
+				onError: (error) => {
+					throw new Error(error.message)
+				}
+			})
 
 			update()
 		} catch (error) {
