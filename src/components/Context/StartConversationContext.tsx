@@ -1,10 +1,11 @@
-import { Query, Mutation, QuerySearchUsersArgs, SearchedUser, MutationCreateConversationArgs } from '@/graphql/types'
-import { ApolloError, useLazyQuery, useMutation } from '@apollo/client'
-import { ReactNode, createContext, useContext, useEffect, useState } from 'react'
-import UserOperations from '@/graphql/operations/user'
 import ConversationOperations from '@/graphql/operations/conversation'
-import { AppContext } from './AppContext'
+import UserOperations from '@/graphql/operations/user'
+import { Mutation, MutationCreateConversationArgs, Query, QuerySearchUsersArgs, SearchedUser } from '@/graphql/types'
+import { useAddQuery } from '@/hooks/useAddQuery'
+import { ApolloError, useLazyQuery, useMutation } from '@apollo/client'
 import { useSession } from 'next-auth/react'
+import { ReactNode, createContext, useContext, useState } from 'react'
+import { AppContext } from './AppContext'
 
 type DisplayableUser = SearchedUser & { display?: boolean }
 
@@ -48,6 +49,8 @@ export const StartConversationContextProvider: React.FC<StartConversationContext
 	const { toggleConversationForm } = useContext(AppContext)
 	const { data } = useSession({ required: true })
 
+	const { addQuery } = useAddQuery()
+
 	const [searchUsers, { loading, error }] = useLazyQuery<Query, QuerySearchUsersArgs>(UserOperations.Queries.searchUsers)
 	const [createConversation, { loading: loadingCreateConversation }] = useMutation<Mutation, MutationCreateConversationArgs>(ConversationOperations.Mutations.createConversation)
 
@@ -75,7 +78,15 @@ export const StartConversationContextProvider: React.FC<StartConversationContext
 	const onCreateConversation = async () => {
 		try {
 			const participantIds = [...selectedUsers.map(({ id }) => id), data?.user.id as string]
-			const {} = await createConversation({ variables: { participantIds } })
+			await createConversation({
+				variables: { participantIds },
+				onCompleted: ({ createConversation }) => createConversation?.conversationId && addQuery('conversationId', createConversation?.conversationId),
+				onError: () => {
+					throw { message: 'Error creating conversation' }
+				}
+			})
+
+			closeForm()
 		} catch (error) {
 			console.log(error)
 		}

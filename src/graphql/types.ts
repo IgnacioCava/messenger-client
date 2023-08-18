@@ -12,17 +12,42 @@ export type Scalars = {
 	Boolean: { input: boolean; output: boolean }
 	Int: { input: number; output: number }
 	Float: { input: number; output: number }
+	Date: { input: string; output: string }
+}
+
+export type Conversation = {
+	__typename?: 'Conversation'
+	createdAt: Scalars['Date']['output']
+	id: Scalars['String']['output']
+	lastMessage?: Maybe<Message>
+	updatedAt: Scalars['Date']['output']
+	users: Array<ConversationParticipant>
+}
+
+export type ConversationParticipant = {
+	__typename?: 'ConversationParticipant'
+	hasSeenLatestMessage: Scalars['Boolean']['output']
+	id: Scalars['String']['output']
+	user: User
 }
 
 export type CreateConversationResponse = {
 	__typename?: 'CreateConversationResponse'
-	conversationId?: Maybe<Scalars['String']['output']>
+	conversationId: Scalars['String']['output']
 }
 
 export type CreateUsernameResponse = {
 	__typename?: 'CreateUsernameResponse'
 	error?: Maybe<Scalars['String']['output']>
 	success?: Maybe<Scalars['Boolean']['output']>
+}
+
+export type Message = {
+	__typename?: 'Message'
+	body: Scalars['String']['output']
+	createdAt: Scalars['Date']['output']
+	id: Scalars['String']['output']
+	sender: User
 }
 
 export type Mutation = {
@@ -41,6 +66,7 @@ export type MutationCreateUsernameArgs = {
 
 export type Query = {
 	__typename?: 'Query'
+	conversations?: Maybe<Array<Conversation>>
 	searchUsers?: Maybe<Array<SearchedUser>>
 }
 
@@ -61,6 +87,9 @@ export type Subscription = {
 
 export type User = {
 	__typename?: 'User'
+	email: Scalars['String']['output']
+	emailVerified: Scalars['Boolean']['output']
 	id: Scalars['String']['output']
+	image: Scalars['String']['output']
 	username: Scalars['String']['output']
 }
