@@ -1,21 +1,13 @@
-import ConversationOperations from '@/graphql/operations/conversation'
-import { Query } from '@/graphql/types'
 import { is } from '@/util/functions'
-import { useQuery } from '@apollo/client'
-import { Logout, StartConversationForm, User, UserIcon } from '@components'
+import { ItemWithIcon, Logout, StartConversationForm, UserIcon } from '@components'
 import { useSession } from 'next-auth/react'
-import { useSearchParams } from 'next/navigation'
 import { useContext } from 'react'
 import { AppContext } from '../Context/AppContext'
 import { StartConversationContextProvider } from '../Context/StartConversationContext'
 
 export const ChatList = () => {
-	const { showChatList, toggleConversationForm } = useContext(AppContext)
+	const { showChatList, toggleConversationForm, conversations, onOpenConversation } = useContext(AppContext)
 	const { data: userData } = useSession()
-
-	const conversationId = useSearchParams().get('conversationId')
-
-	const { data, error, loading } = useQuery<Query>(ConversationOperations.Queries.conversations)
 
 	return (
 		<div id='users' className={`${is(!showChatList, 'hidden')} overflow-hidden relative col gap-3 float-left chat-list-responsive h-full bg-zinc-800 border-r-[1px] border-slate-600`}>
@@ -29,7 +21,12 @@ export const ChatList = () => {
 				<StartConversationForm />
 			</StartConversationContextProvider>
 			{/* <SearchUser /> */}
-			<div className='s-full overflow-auto space-children'>{data?.conversations?.map(({ users }) => <User name={users.map(({ user }) => user.username).join(', ')} />)}</div>
+			<div className='s-full overflow-auto'>
+				{conversations?.map(({ users, id }) => {
+					const userList = users.map(({ user }) => user.username).join(', ')
+					return <ItemWithIcon key={id} id={id} name={userList} onClick={() => onOpenConversation(id)} />
+				})}
+			</div>
 			<Logout />
 		</div>
 	)
