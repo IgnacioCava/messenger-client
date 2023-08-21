@@ -1,5 +1,5 @@
 import { is } from '@/util/functions'
-import { SearchUser, User } from '@components'
+import { SearchUser, ItemWithIcon } from '@components'
 import { useContext } from 'react'
 import { AppContext } from '../Context/AppContext'
 import { StartConversationContext } from '../Context/StartConversationContext'
@@ -41,7 +41,7 @@ export const StartConversationForm = () => {
 						foundUsers?.map((user) => {
 							return user.display === false ? null : (
 								<div key={user.id} onClick={() => addUser(user)}>
-									<User name={user.username} />
+									<ItemWithIcon id={user.id} name={user.username} />
 								</div>
 							)
 						})

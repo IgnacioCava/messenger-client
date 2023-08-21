@@ -1,4 +1,8 @@
-import { ApolloClient, HttpLink, InMemoryCache, concat } from '@apollo/client'
+import { ApolloClient, HttpLink, InMemoryCache, concat, split } from '@apollo/client'
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
+import { getMainDefinition } from '@apollo/client/utilities'
+import { createClient } from 'graphql-ws'
+import { getSession } from 'next-auth/react'
 import { authMiddleware } from '../middleware/authentication'
 
 const httpLink = new HttpLink({
@@ -6,8 +10,32 @@ const httpLink = new HttpLink({
 	credentials: 'include'
 })
 
+const wsLink =
+	typeof window !== 'undefined'
+		? new GraphQLWsLink(
+				createClient({
+					url: 'ws://localhost:4000/graphql/subscriptions',
+					connectionParams: async () => ({
+						session: (await getSession())?.user
+					})
+				})
+		  )
+		: null
+
+const splitLink =
+	typeof window !== 'undefined' && wsLink !== null
+		? split(
+				({ query }) => {
+					const definition = getMainDefinition(query)
+					return definition.kind === 'OperationDefinition' && definition.operation === 'subscription'
+				},
+				wsLink,
+				httpLink
+		  )
+		: httpLink
+
 const client = new ApolloClient({
-	link: concat(authMiddleware, httpLink),
+	link: concat(authMiddleware, splitLink),
 	cache: new InMemoryCache()
 })
 

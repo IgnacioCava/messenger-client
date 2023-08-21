@@ -1,8 +1,7 @@
 'use client'
 
+import { Auth, Chat, ChatList, Conversation } from '@/components'
 import { useSession } from 'next-auth/react'
-
-import { ChatList, Conversation } from '@/components'
 
 export default function Home() {
 	const { data: session, status } = useSession()
@@ -11,9 +10,9 @@ export default function Home() {
 	//return <div className='col'>{session?.user.username ? <Chat /> : <Auth />}</div>
 	return (
 		<div className='flex s-full xl:w-app-max xl:max-w-app-max xl:h-[95%] m-auto'>
+			<div className='col'>{session?.user.username ? <Chat /> : <Auth />}</div>
 			<ChatList />
 			<Conversation />
-			{session?.user.username}
 		</div>
 	)
 }

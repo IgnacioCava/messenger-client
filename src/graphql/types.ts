@@ -12,7 +12,7 @@ export type Scalars = {
 	Boolean: { input: boolean; output: boolean }
 	Int: { input: number; output: number }
 	Float: { input: number; output: number }
-	Date: { input: string; output: string }
+	Date: { input: Date; output: Date }
 }
 
 export type Conversation = {
@@ -66,7 +66,7 @@ export type MutationCreateUsernameArgs = {
 
 export type Query = {
 	__typename?: 'Query'
-	conversations?: Maybe<Array<Conversation>>
+	conversations: Array<Conversation>
 	searchUsers?: Maybe<Array<SearchedUser>>
 }
 
@@ -82,6 +82,7 @@ export type SearchedUser = {
 
 export type Subscription = {
 	__typename?: 'Subscription'
+	conversationCreated: Conversation
 	userCreated?: Maybe<User>
 }
 
