@@ -11,8 +11,9 @@ interface AppContextValues {
 	showConversationForm: boolean
 	toggleConversationForm: (force?: boolean) => void
 	conversations: Conversation[] | undefined
-	onOpenConversation: (id: string) => void
+	onSelectConversation: (conversation: Conversation) => void
 	conversationId: string | null
+	selectedConversation: Conversation | null
 }
 
 const defaultContext: AppContextValues = {
@@ -22,7 +23,8 @@ const defaultContext: AppContextValues = {
 	conversationId: null,
 	toggleConversationForm: () => {},
 	conversations: [],
-	onOpenConversation: () => null
+	onSelectConversation: () => null,
+	selectedConversation: null
 }
 
 export const AppContext = createContext<AppContextValues>(defaultContext)
@@ -34,6 +36,7 @@ interface AppContextProps {
 export const AppContextProvider: React.FC<AppContextProps> = ({ children }) => {
 	const [showChatList, toggleChatList] = useState(true)
 	const [showConversationForm, toggleConversationForm] = useState(false)
+	const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
 
 	const { addQuery } = useAddQuery()
 
@@ -59,13 +62,15 @@ export const AppContextProvider: React.FC<AppContextProps> = ({ children }) => {
 		subscriptToNewConversations()
 	}, [])
 
-	const onOpenConversation = (id: string) => {
-		addQuery('conversationId', id)
+	const onSelectConversation = (conversation: Conversation) => {
+		setSelectedConversation(conversation)
+		addQuery('conversationId', conversation.id)
 	}
 
 	const value: AppContextValues = {
+		selectedConversation,
 		conversations: data?.conversations,
-		onOpenConversation,
+		onSelectConversation,
 		showChatList,
 		showConversationForm,
 		conversationId,
