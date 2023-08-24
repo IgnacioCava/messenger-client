@@ -2,8 +2,9 @@ import { ReactNode, createContext, useState, useEffect } from 'react'
 import ConversationOperations from '@/graphql/operations/conversation'
 import { useAddQuery } from '@/hooks/useAddQuery'
 import { useSearchParams } from 'next/navigation'
-import { useQuery } from '@apollo/client'
-import { Query, Conversation } from '@/graphql/types'
+import { gql, useMutation, useQuery } from '@apollo/client'
+import { Query, Conversation, Mutation, MutationMarkAsReadArgs, ConversationParticipant, SearchedUser } from '@/graphql/types'
+import { useSession } from 'next-auth/react'
 
 interface AppContextValues {
 	showChatList: boolean
@@ -11,20 +12,22 @@ interface AppContextValues {
 	showConversationForm: boolean
 	toggleConversationForm: (force?: boolean) => void
 	conversations: Conversation[] | undefined
-	onSelectConversation: (conversation: Conversation) => void
-	conversationId: string | null
+	onSelectConversation: (conversation: Conversation, hasSeenLatestMessage: boolean) => Promise<void>
+	conversationId: string
 	selectedConversation: Conversation | null
+	loading: boolean
 }
 
 const defaultContext: AppContextValues = {
 	showChatList: true,
 	toggleChatList: () => {},
 	showConversationForm: false,
-	conversationId: null,
+	conversationId: '',
 	toggleConversationForm: () => {},
 	conversations: [],
-	onSelectConversation: () => null,
-	selectedConversation: null
+	onSelectConversation: async () => {},
+	selectedConversation: null,
+	loading: true
 }
 
 export const AppContext = createContext<AppContextValues>(defaultContext)
@@ -38,11 +41,15 @@ export const AppContextProvider: React.FC<AppContextProps> = ({ children }) => {
 	const [showConversationForm, toggleConversationForm] = useState(false)
 	const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
 
+	const { data: userData } = useSession()
+
 	const { addQuery } = useAddQuery()
 
-	const conversationId = useSearchParams().get('conversationId')
+	const conversationId = useSearchParams().get('conversationId') || ''
 
 	const { data, error, loading, subscribeToMore } = useQuery<Query>(ConversationOperations.Queries.conversations)
+
+	const [markAsRead] = useMutation<Mutation, MutationMarkAsReadArgs>(ConversationOperations.Mutations.markAsRead)
 
 	const subscriptToNewConversations = () => {
 		subscribeToMore({
@@ -62,9 +69,79 @@ export const AppContextProvider: React.FC<AppContextProps> = ({ children }) => {
 		subscriptToNewConversations()
 	}, [])
 
-	const onSelectConversation = (conversation: Conversation) => {
+	const onSelectConversation = async (conversation: Conversation, hasSeenLatestMessage: boolean | undefined) => {
 		setSelectedConversation(conversation)
 		addQuery('conversationId', conversation.id)
+		console.log(hasSeenLatestMessage)
+		if (hasSeenLatestMessage) return
+		if (!userData?.user.id) return
+		try {
+			await markAsRead({
+				variables: {
+					userId: userData.user.id,
+					conversationId: conversation.id
+				},
+				optimisticResponse: {
+					markAsRead: true
+				},
+				update: (cache) => {
+					/**
+					 * Get conversation participants from cache
+					 */
+					const participantsFragment = cache.readFragment<{
+						users: ConversationParticipant[]
+					}>({
+						id: `Conversation:${conversation.id}`,
+						fragment: gql`
+							fragment Participants on Conversation {
+								users {
+									user {
+										id
+										username
+									}
+									hasSeenLatestMessage
+								}
+							}
+						`
+					})
+
+					if (!participantsFragment) return
+
+					const participants = [...participantsFragment.users]
+
+					const userParticipantIdx = participants.findIndex((p) => p.user.id === userData.user.id)
+
+					if (userParticipantIdx === -1) return
+
+					const userParticipant = participants[userParticipantIdx]
+
+					/**
+					 * Update participant to show latest message as read
+					 */
+					participants[userParticipantIdx] = {
+						...userParticipant,
+						hasSeenLatestMessage: true
+					}
+
+					/**
+					 * Update cache
+					 */
+					cache.writeFragment({
+						id: `Conversation:${conversation.id}`,
+						fragment: gql`
+							fragment UpdatedParticipant on Conversation {
+								users
+							}
+						`,
+						data: {
+							users: participants
+						}
+					})
+				}
+			})
+		} catch (error) {
+			console.log('onViewConversation error', error)
+		}
 	}
 
 	const value: AppContextValues = {
@@ -74,6 +151,7 @@ export const AppContextProvider: React.FC<AppContextProps> = ({ children }) => {
 		showChatList,
 		showConversationForm,
 		conversationId,
+		loading,
 		toggleChatList: (force) => toggleChatList(force ?? !showChatList),
 		toggleConversationForm: (force) => toggleConversationForm(force ?? !showChatList)
 	}

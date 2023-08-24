@@ -54,6 +54,8 @@ export type Mutation = {
 	__typename?: 'Mutation'
 	createConversation?: Maybe<CreateConversationResponse>
 	createUsername?: Maybe<CreateUsernameResponse>
+	markAsRead?: Maybe<Scalars['Boolean']['output']>
+	sendMessage?: Maybe<Scalars['Boolean']['output']>
 }
 
 export type MutationCreateConversationArgs = {
@@ -64,10 +66,27 @@ export type MutationCreateUsernameArgs = {
 	username: Scalars['String']['input']
 }
 
+export type MutationMarkAsReadArgs = {
+	conversationId: Scalars['String']['input']
+	userId: Scalars['String']['input']
+}
+
+export type MutationSendMessageArgs = {
+	body: Scalars['String']['input']
+	conversationId: Scalars['String']['input']
+	id: Scalars['String']['input']
+	senderId: Scalars['String']['input']
+}
+
 export type Query = {
 	__typename?: 'Query'
 	conversations: Array<Conversation>
+	messages: Array<Message>
 	searchUsers?: Maybe<Array<SearchedUser>>
+}
+
+export type QueryMessagesArgs = {
+	conversationId: Scalars['String']['input']
 }
 
 export type QuerySearchUsersArgs = {
@@ -83,13 +102,17 @@ export type SearchedUser = {
 export type Subscription = {
 	__typename?: 'Subscription'
 	conversationCreated: Conversation
+	messageSent: Message
 	userCreated?: Maybe<User>
+}
+
+export type SubscriptionMessageSentArgs = {
+	conversationId: Scalars['String']['input']
 }
 
 export type User = {
 	__typename?: 'User'
 	email: Scalars['String']['output']
-	emailVerified: Scalars['Boolean']['output']
 	id: Scalars['String']['output']
 	image: Scalars['String']['output']
 	username: Scalars['String']['output']

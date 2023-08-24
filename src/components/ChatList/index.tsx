@@ -1,5 +1,5 @@
 import { is } from '@/util/functions'
-import { Logout, StartConversationForm, UserIcon, ConversationList, ItemWithIcon } from '@components'
+import { Logout, StartConversationForm, ConversationList, ItemWithIcon } from '@components'
 import { useSession } from 'next-auth/react'
 import { useContext } from 'react'
 import { AppContext } from '../Context/AppContext'

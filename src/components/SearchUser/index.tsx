@@ -30,7 +30,7 @@ export const SearchUser = () => {
 					className='font-light outline-none text-zinc-200 bg-transparent placeholder:text-zinc-400 pl-3 py-1 rounded w-full'
 				/>
 				<button type='submit' className=' px-3'>
-					{loading ? <Spinner className='h-4 w-4 animate-spin' /> : <SearchIcon className='fill-slate-400 h-4 w-4' />}
+					{loading ? <Spinner className='h-4 w-4' /> : <SearchIcon className='fill-slate-400 h-4 w-4' />}
 				</button>
 			</form>
 			{error && <span className='mx-3'>{error.message}</span>}

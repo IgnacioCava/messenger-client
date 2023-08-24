@@ -23,7 +23,8 @@ module.exports = {
 			},
 			animation: {
 				anim: 'var(--anim)',
-				'anim-back': 'var(--anim-back)'
+				'anim-back': 'var(--anim-back)',
+				'skeleton-fade': 'var(--skeleton-fade)'
 			}
 		}
 	},

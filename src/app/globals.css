@@ -49,6 +49,7 @@
   --chat-list-md: 250px;
   --anim: anim .2s ease-out;
   --anim-back: anim-back .2s ease-out;
+  --skeleton-fade: skeleton-fade 1.5s ease-in-out infinite;
 }
 
 @keyframes anim {
@@ -66,6 +67,18 @@
   }
   100% {
     transform: translateX(-100%);
+  }
+}
+
+@keyframes skeleton-fade {
+  0% {
+    background-color: rgba(71, 71, 71, 0.2);
+  }
+  50% {
+    background-color: rgba(71, 71, 71, 0.692);
+  }
+  100% {
+    background-color: rgba(71, 71, 71, 0.2);
   }
 }
 
