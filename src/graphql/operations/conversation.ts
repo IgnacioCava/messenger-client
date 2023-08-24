@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { MessageFields } from './message'
 
 const ConversationFields = `
 	id
@@ -11,13 +12,7 @@ const ConversationFields = `
 	}
 	updatedAt
 	lastMessage {
-		id
-		sender {
-			id
-			username
-		}
-		body
-		createdAt
+		${MessageFields}
 	}
 `
 
@@ -37,6 +32,11 @@ export default {
 				createConversation(participantIds: $participantIds) {
 					conversationId
 				}
+			}
+		`,
+		markAsRead: gql`
+			mutation markAsRead($userId: String!, $conversationId: String!) {
+				markAsRead(userId: $userId, conversationId: $conversationId)
 			}
 		`
 	},

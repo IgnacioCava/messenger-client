@@ -1,5 +1,5 @@
 import { is, usernames, formatTime } from '@/util/functions'
-import { UserIcon, Message, SendMessage, ItemWithIcon } from '@components'
+import { UserIcon, Message, SendMessage, ItemWithIcon, Messages } from '@components'
 import { useContext } from 'react'
 import { AppContext } from '../Context/AppContext'
 import { useSession } from 'next-auth/react'
@@ -12,17 +12,13 @@ export const Conversation = () => {
 		<div id='conversation' className={`h-full col s-full test-outlin bg-zinc-900 overflow-hidden`}>
 			{convo ? (
 				<>
-					<div className='flex items-center px-3 py-2 bg-slate-800 gap-3 border-b-[1px] border-slate-600'>
+					<div className='flex items-center bg-slate-800 gap-3 border-b-[1px] border-slate-600'>
 						<button className='block lg:hidden aspect-square w-10' onClick={() => toggleChatList()}>
 							{is(showChatList, '<-', '->')}
 						</button>
 						<ItemWithIcon key={convo.id} name={usernames(convo.users, userData?.user.id)} />
 					</div>
-					<div className='p-2 xl:p-4 [&>*:not(:first-child)]:mt-4 overflow-auto h-full'>
-						{[...Array(20)].map((_, index) => (
-							<Message key={index} direction={Math.random() < 0.5 ? 'left' : 'right'} />
-						))}
-					</div>
+					<Messages conversationId={convo.id} />
 					<SendMessage />
 				</>
 			) : (
