@@ -22,7 +22,7 @@ export const Message = ({ data }: { data: MessageType }) => {
 			<UserIcon right={right} />
 			<div className={`col overflow-hidden w-full ${is(right, 'items-end')}`}>
 				<p className='text-sm'>
-					{is(right, 'You', 'Other user')} <span className='text-zinc-400 text-sm'>{formatTime(createdAt)}</span>
+					{sender.username} <span className='text-zinc-400 text-sm'>{formatTime(createdAt)}</span>
 				</p>
 				{/* {testCases.map((e, index) => (
 					<div
@@ -41,7 +41,6 @@ export const Message = ({ data }: { data: MessageType }) => {
 }
 
 export const Messages = ({ conversationId }: { conversationId: string }) => {
-	const { selectedConversation } = useContext(AppContext)
 	const { data: userData } = useSession()
 
 	const { data, loading, error, subscribeToMore } = useQuery<Query, QueryMessagesArgs>(MessageOperations.Query.messages, {
@@ -53,29 +52,29 @@ export const Messages = ({ conversationId }: { conversationId: string }) => {
 
 	const messagesContainer = useRef<HTMLDivElement>(null)
 
-	const subscribeToMoreMessages = (conversationId: string) => {
-		subscribeToMore({
+	useEffect(() => {
+		if (data?.messages) messagesContainer.current?.scrollTo({ top: messagesContainer.current?.scrollHeight })
+	}, [data?.messages])
+
+	useEffect(() => {
+		const unsubscribe = subscribeToMore({
 			document: MessageOperations.Subscription.messageSent,
 			variables: { conversationId },
 			updateQuery: (prev, { subscriptionData }: { subscriptionData: { data: { messageSent: MessageType } } }) => {
 				if (!subscriptionData.data) return prev
-				const newMessage = subscriptionData.data.messageSent
 
+				const newMessage = subscriptionData.data.messageSent
+				if (newMessage.sender.id === userData?.user.id) return prev
 				return Object.assign({}, prev, {
-					messages: newMessage.sender.id === userData?.user.id ? prev.messages : [...prev.messages, newMessage]
+					messages: [...prev.messages, newMessage]
 				})
+			},
+			onError: (error) => {
+				console.log('message', error)
 			}
 		})
-	}
-
-	useEffect(() => {
-		if (data?.messages) messagesContainer.current?.scrollTo({ top: messagesContainer.current?.scrollHeight })
-	}, [data?.messages, conversationId])
-
-	useEffect(() => {
-		console.log('xd')
-		subscribeToMoreMessages(conversationId)
-	}, [])
+		if (conversationId) return () => unsubscribe()
+	}, [subscribeToMore, conversationId])
 
 	return (
 		<div ref={messagesContainer} className='p-2 xl:p-4 [&>*:not(:first-child)]:mt-4 overflow-auto h-full'>

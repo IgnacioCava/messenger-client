@@ -3,8 +3,8 @@ import { gql } from '@apollo/client'
 export default {
 	Queries: {
 		searchUsers: gql`
-			query searchUsers($username: String!) {
-				searchUsers(username: $username) {
+			query searchUsers($username: String!, $excludedIds: [String]) {
+				searchUsers(username: $username, excludedIds: $excludedIds) {
 					id
 					username
 				}

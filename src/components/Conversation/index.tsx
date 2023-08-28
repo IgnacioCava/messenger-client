@@ -5,7 +5,7 @@ import { AppContext } from '../Context/AppContext'
 import { useSession } from 'next-auth/react'
 
 export const Conversation = () => {
-	const { showChatList, toggleChatList, selectedConversation: convo, toggleConversationForm, showConversationForm } = useContext(AppContext)
+	const { showChatList, toggleChatList, selectedConversation: convo, toggleConversationForm, showConversationForm, onDeleteConversation } = useContext(AppContext)
 	const { data: userData } = useSession()
 
 	return (
@@ -17,6 +17,7 @@ export const Conversation = () => {
 							{is(showChatList, '<-', '->')}
 						</button>
 						<ItemWithIcon key={convo.id} name={usernames(convo.users, userData?.user.id)} />
+						<button onClick={() => onDeleteConversation(convo.id)}>DELETE</button>
 					</div>
 					<Messages conversationId={convo.id} />
 					<SendMessage />

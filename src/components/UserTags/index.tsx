@@ -24,7 +24,7 @@ export const UserTags = () => {
 	return selectedUsers.length ? (
 		<div id='tags' className='flex flex-wrap gap-2 px-3 pb-0 max-h-[150px] overflow-auto mb-3'>
 			{selectedUsers.map((user) => (
-				<UserTag user={user} />
+				<UserTag key={user.id} user={user} />
 			))}
 		</div>
 	) : null

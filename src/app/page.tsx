@@ -10,9 +10,14 @@ export default function Home() {
 	//return <div className='col'>{session?.user.username ? <Chat /> : <Auth />}</div>
 	return (
 		<div className='flex s-full xl:w-app-max xl:max-w-app-max xl:h-[95%] m-auto'>
-			<div className='col'>{session?.user.username ? <Chat /> : <Auth />}</div>
-			<ChatList />
-			<Conversation />
+			{session?.user.username ? (
+				<>
+					<ChatList />
+					<Conversation />
+				</>
+			) : (
+				<Auth />
+			)}
 		</div>
 	)
 }

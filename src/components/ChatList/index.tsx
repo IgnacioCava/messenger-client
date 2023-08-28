@@ -7,7 +7,7 @@ import { StartConversationContextProvider } from '../Context/StartConversationCo
 
 export const ChatList = () => {
 	const { showChatList, toggleConversationForm } = useContext(AppContext)
-	const { data: userData } = useSession({ required: true })
+	const { data: userData } = useSession()
 
 	return (
 		<div id='users' className={`${is(!showChatList, 'hidden')} overflow-hidden relative col gap-3 float-left chat-list-responsive h-full bg-zinc-800 border-r-[1px] border-slate-600`}>

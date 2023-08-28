@@ -1,10 +1,18 @@
-import { ReactNode, createContext, useState, useEffect } from 'react'
 import ConversationOperations from '@/graphql/operations/conversation'
-import { useAddQuery } from '@/hooks/useAddQuery'
-import { useSearchParams } from 'next/navigation'
-import { gql, useMutation, useQuery } from '@apollo/client'
-import { Query, Conversation, Mutation, MutationMarkAsReadArgs, ConversationParticipant, SearchedUser } from '@/graphql/types'
+import {
+	Conversation,
+	ConversationDeletedSubscriptionPayload,
+	ConversationParticipant,
+	ConversationUpdatedSubscriptionPayload,
+	MutationDeleteConversationArgs,
+	MutationMarkAsReadArgs
+} from '@/graphql/types'
+import { useConversationQuery } from '@/hooks/useAddQuery'
+import { OpReturnType } from '@/util/utilityTypes'
+import { gql, useMutation, useQuery, useSubscription } from '@apollo/client'
 import { useSession } from 'next-auth/react'
+import { useSearchParams } from 'next/navigation'
+import { ReactNode, createContext, useEffect, useState } from 'react'
 
 interface AppContextValues {
 	showChatList: boolean
@@ -16,6 +24,8 @@ interface AppContextValues {
 	conversationId: string
 	selectedConversation: Conversation | null
 	loading: boolean
+	markMessageAsRead: (conversationId: string, hasSeenLatestMessage?: boolean) => Promise<void>
+	onDeleteConversation: (conversationId: string) => Promise<void>
 }
 
 const defaultContext: AppContextValues = {
@@ -27,7 +37,9 @@ const defaultContext: AppContextValues = {
 	conversations: [],
 	onSelectConversation: async () => {},
 	selectedConversation: null,
-	loading: true
+	loading: true,
+	markMessageAsRead: async () => {},
+	onDeleteConversation: async () => {}
 }
 
 export const AppContext = createContext<AppContextValues>(defaultContext)
@@ -43,15 +55,21 @@ export const AppContextProvider: React.FC<AppContextProps> = ({ children }) => {
 
 	const { data: userData } = useSession()
 
-	const { addQuery } = useAddQuery()
+	const { addQuery, resetQuery } = useConversationQuery()
+
+	useEffect(() => {
+		resetQuery()
+	}, [])
 
 	const conversationId = useSearchParams().get('conversationId') || ''
 
-	const { data, error, loading, subscribeToMore } = useQuery<Query>(ConversationOperations.Queries.conversations)
+	const { data, error, loading, subscribeToMore } = useQuery<OpReturnType<'conversations'>>(ConversationOperations.Queries.conversations)
 
-	const [markAsRead] = useMutation<Mutation, MutationMarkAsReadArgs>(ConversationOperations.Mutations.markAsRead)
+	const [markAsRead] = useMutation<OpReturnType<'markAsRead'>, MutationMarkAsReadArgs>(ConversationOperations.Mutations.markAsRead)
 
-	const subscriptToNewConversations = () => {
+	const [deleteConversation] = useMutation<OpReturnType<'deleteConversation'>, MutationDeleteConversationArgs>(ConversationOperations.Mutations.deleteConversation)
+
+	const subscribeToNewConversations = () => {
 		subscribeToMore({
 			document: ConversationOperations.Subscription.conversationCreated,
 			updateQuery: (prev, { subscriptionData }: { subscriptionData: { data: { conversationCreated: Conversation } } }) => {
@@ -61,37 +79,92 @@ export const AppContextProvider: React.FC<AppContextProps> = ({ children }) => {
 				return Object.assign({}, prev, {
 					conversations: [newConverstion, ...prev.conversations]
 				})
+			},
+			onError: (error) => {
+				console.log('newconvs', error)
 			}
 		})
 	}
 
+	useSubscription<OpReturnType<'conversationUpdated'>, ConversationUpdatedSubscriptionPayload>(ConversationOperations.Subscription.conversationUpdated, {
+		onData: ({ client, data: subscriptionData }) => {
+			if (!subscriptionData.data) return
+			const { conversation } = subscriptionData.data?.conversationUpdated
+
+			const prevData = client.readQuery<OpReturnType<'conversations'>>({
+				query: ConversationOperations.Queries.conversations
+			})
+
+			if (prevData?.conversations.length)
+				client.writeQuery<OpReturnType<'conversations'>>({
+					query: ConversationOperations.Queries.conversations,
+					data: { conversations: [conversation, ...prevData.conversations.filter((conv) => conv.id !== conversation.id)] }
+				})
+			const viewing = conversation.id === conversationId
+			if (viewing) markMessageAsRead(conversation.id)
+		},
+		onError: (error) => {
+			console.log('convupdated', error)
+		}
+	})
+
+	useSubscription<OpReturnType<'conversationDeleted'>, ConversationDeletedSubscriptionPayload>(ConversationOperations.Subscription.conversationDeleted, {
+		onData: ({ client, data: subscriptionData }) => {
+			if (!subscriptionData.data) return
+			const existingConversations = client.readQuery<OpReturnType<'conversations'>>({
+				query: ConversationOperations.Queries.conversations
+			})
+
+			if (!existingConversations) return
+
+			const { conversations } = existingConversations
+			const { id: deletedId } = subscriptionData.data?.conversationDeleted
+			client.writeQuery<OpReturnType<'conversations'>>({
+				query: ConversationOperations.Queries.conversations,
+				data: {
+					conversations: conversations.filter((conv) => conv.id !== deletedId)
+				}
+			})
+		},
+		onError: (error) => {
+			console.log('convdeleted', error)
+		}
+	})
+
+	const onDeleteConversation = async (conversationId: string) => {
+		try {
+			await deleteConversation({
+				variables: { conversationId },
+				update: () => {
+					resetQuery()
+				}
+			})
+		} catch (error) {
+			console.log('onDeleteConversation error', error)
+		}
+	}
+
 	useEffect(() => {
-		subscriptToNewConversations()
+		subscribeToNewConversations()
 	}, [])
 
-	const onSelectConversation = async (conversation: Conversation, hasSeenLatestMessage: boolean | undefined) => {
-		setSelectedConversation(conversation)
-		addQuery('conversationId', conversation.id)
-		console.log(hasSeenLatestMessage)
+	const markMessageAsRead = async (conversationId: string, hasSeenLatestMessage?: boolean) => {
 		if (hasSeenLatestMessage) return
 		if (!userData?.user.id) return
 		try {
 			await markAsRead({
 				variables: {
 					userId: userData.user.id,
-					conversationId: conversation.id
+					conversationId
 				},
 				optimisticResponse: {
 					markAsRead: true
 				},
 				update: (cache) => {
-					/**
-					 * Get conversation participants from cache
-					 */
 					const participantsFragment = cache.readFragment<{
 						users: ConversationParticipant[]
 					}>({
-						id: `Conversation:${conversation.id}`,
+						id: `Conversation:${conversationId}`,
 						fragment: gql`
 							fragment Participants on Conversation {
 								users {
@@ -115,22 +188,22 @@ export const AppContextProvider: React.FC<AppContextProps> = ({ children }) => {
 
 					const userParticipant = participants[userParticipantIdx]
 
-					/**
-					 * Update participant to show latest message as read
-					 */
 					participants[userParticipantIdx] = {
 						...userParticipant,
 						hasSeenLatestMessage: true
 					}
 
-					/**
-					 * Update cache
-					 */
 					cache.writeFragment({
-						id: `Conversation:${conversation.id}`,
+						id: `Conversation:${conversationId}`,
 						fragment: gql`
 							fragment UpdatedParticipant on Conversation {
-								users
+								users {
+									user {
+										id
+										username
+									}
+									hasSeenLatestMessage
+								}
 							}
 						`,
 						data: {
@@ -144,6 +217,14 @@ export const AppContextProvider: React.FC<AppContextProps> = ({ children }) => {
 		}
 	}
 
+	const onSelectConversation = async (conversation: Conversation, hasSeenLatestMessage: boolean | undefined) => {
+		setSelectedConversation(conversation)
+		addQuery('conversationId', conversation.id)
+		if (hasSeenLatestMessage) return
+		if (!userData?.user.id) return
+		await markMessageAsRead(conversation.id, hasSeenLatestMessage)
+	}
+
 	const value: AppContextValues = {
 		selectedConversation,
 		conversations: data?.conversations,
@@ -153,7 +234,9 @@ export const AppContextProvider: React.FC<AppContextProps> = ({ children }) => {
 		conversationId,
 		loading,
 		toggleChatList: (force) => toggleChatList(force ?? !showChatList),
-		toggleConversationForm: (force) => toggleConversationForm(force ?? !showChatList)
+		toggleConversationForm: (force) => toggleConversationForm(force ?? !showChatList),
+		markMessageAsRead,
+		onDeleteConversation
 	}
 
 	return <AppContext.Provider value={value}>{children}</AppContext.Provider>

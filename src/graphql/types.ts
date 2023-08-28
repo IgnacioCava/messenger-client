@@ -24,11 +24,21 @@ export type Conversation = {
 	users: Array<ConversationParticipant>
 }
 
+export type ConversationDeletedSubscriptionPayload = {
+	__typename?: 'ConversationDeletedSubscriptionPayload'
+	id: Scalars['String']['output']
+}
+
 export type ConversationParticipant = {
 	__typename?: 'ConversationParticipant'
 	hasSeenLatestMessage: Scalars['Boolean']['output']
 	id: Scalars['String']['output']
 	user: User
+}
+
+export type ConversationUpdatedSubscriptionPayload = {
+	__typename?: 'ConversationUpdatedSubscriptionPayload'
+	conversation: Conversation
 }
 
 export type CreateConversationResponse = {
@@ -45,6 +55,7 @@ export type CreateUsernameResponse = {
 export type Message = {
 	__typename?: 'Message'
 	body: Scalars['String']['output']
+	conversationId: Scalars['String']['output']
 	createdAt: Scalars['Date']['output']
 	id: Scalars['String']['output']
 	sender: User
@@ -54,8 +65,9 @@ export type Mutation = {
 	__typename?: 'Mutation'
 	createConversation?: Maybe<CreateConversationResponse>
 	createUsername?: Maybe<CreateUsernameResponse>
+	deleteConversation?: Maybe<Scalars['Boolean']['output']>
 	markAsRead?: Maybe<Scalars['Boolean']['output']>
-	sendMessage?: Maybe<Scalars['Boolean']['output']>
+	sendMessage?: Maybe<Scalars['String']['output']>
 }
 
 export type MutationCreateConversationArgs = {
@@ -66,6 +78,10 @@ export type MutationCreateUsernameArgs = {
 	username: Scalars['String']['input']
 }
 
+export type MutationDeleteConversationArgs = {
+	conversationId: Scalars['String']['input']
+}
+
 export type MutationMarkAsReadArgs = {
 	conversationId: Scalars['String']['input']
 	userId: Scalars['String']['input']
@@ -74,7 +90,6 @@ export type MutationMarkAsReadArgs = {
 export type MutationSendMessageArgs = {
 	body: Scalars['String']['input']
 	conversationId: Scalars['String']['input']
-	id: Scalars['String']['input']
 	senderId: Scalars['String']['input']
 }
 
@@ -90,6 +105,7 @@ export type QueryMessagesArgs = {
 }
 
 export type QuerySearchUsersArgs = {
+	excludedIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 	username?: InputMaybe<Scalars['String']['input']>
 }
 
@@ -102,6 +118,8 @@ export type SearchedUser = {
 export type Subscription = {
 	__typename?: 'Subscription'
 	conversationCreated: Conversation
+	conversationDeleted: ConversationDeletedSubscriptionPayload
+	conversationUpdated: ConversationUpdatedSubscriptionPayload
 	messageSent: Message
 	userCreated?: Maybe<User>
 }
