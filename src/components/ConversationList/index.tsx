@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react'
 
 export const ConversationList = () => {
 	const { conversations, onSelectConversation, loading } = useContext(AppContext)
-	const { data: userData } = useSession({ required: true })
+	const { data: userData } = useSession()
 
 	return (
 		<div className='s-full overflow-auto'>
@@ -15,7 +15,6 @@ export const ConversationList = () => {
 			{conversations?.map((conversation) => {
 				const { users, id, updatedAt, lastMessage } = conversation
 				const hasSeenLatestMessage = users.find((user) => user.user.id === userData?.user.id)?.hasSeenLatestMessage
-				console.log({ hasSeenLatestMessage })
 				return (
 					<ItemWithIcon
 						key={id}
@@ -23,7 +22,7 @@ export const ConversationList = () => {
 						message={lastMessage?.body}
 						id={id}
 						name={usernames(users, userData?.user.id)}
-						onClick={async () => await onSelectConversation(conversation, !!hasSeenLatestMessage)}
+						onClick={() => onSelectConversation(conversation, !!hasSeenLatestMessage)}
 						hasUpdate={!hasSeenLatestMessage}
 					/>
 				)

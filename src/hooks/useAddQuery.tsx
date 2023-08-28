@@ -1,6 +1,6 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
-export const useAddQuery = () => {
+export const useConversationQuery = () => {
 	const router = useRouter()
 	const searchParams = useSearchParams()
 	const pathname = usePathname()
@@ -11,5 +11,7 @@ export const useAddQuery = () => {
 		router.replace(`${pathname}?${params}`)
 	}
 
-	return { addQuery }
+	const resetQuery = () => router.replace('/')
+
+	return { addQuery, resetQuery }
 }

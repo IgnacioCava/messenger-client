@@ -33,7 +33,7 @@ export const Auth: React.FC<AuthProps> = () => {
 	const [createUsername, { data, loading, error }] = useMutation<Mutation, MutationCreateUsernameArgs>(UserOperations.Mutations.createUsername)
 
 	return (
-		<div className='m-auto flex items-center gap-3 h-screen flex-col justify-center'>
+		<div className='m-auto flex items-center gap-3 h-fit flex-col justify-center'>
 			{session ? (
 				<>
 					<p>Create username</p>

@@ -1,7 +1,7 @@
 import ConversationOperations from '@/graphql/operations/conversation'
 import UserOperations from '@/graphql/operations/user'
 import { Mutation, MutationCreateConversationArgs, Query, QuerySearchUsersArgs, SearchedUser } from '@/graphql/types'
-import { useAddQuery } from '@/hooks/useAddQuery'
+import { useConversationQuery } from '@/hooks/useAddQuery'
 import { ApolloError, useLazyQuery, useMutation } from '@apollo/client'
 import { useSession } from 'next-auth/react'
 import { ReactNode, createContext, useContext, useState } from 'react'
@@ -47,15 +47,18 @@ export const StartConversationContextProvider: React.FC<StartConversationContext
 	const [selectedUsers, setSelectedUsers] = useState<SearchedUser[]>([])
 	const [foundUsers, setFoundUsers] = useState<DisplayableUser[] | null>(null)
 	const { toggleConversationForm } = useContext(AppContext)
-	const { data } = useSession({ required: true })
+	const { data } = useSession()
 
-	const { addQuery } = useAddQuery()
+	const { addQuery } = useConversationQuery()
 
 	const [searchUsers, { loading, error }] = useLazyQuery<Query, QuerySearchUsersArgs>(UserOperations.Queries.searchUsers)
 	const [createConversation, { loading: loadingCreateConversation }] = useMutation<Mutation, MutationCreateConversationArgs>(ConversationOperations.Mutations.createConversation)
 
 	const search = (username: string) => {
-		searchUsers({ variables: { username }, onCompleted: ({ searchUsers }) => searchUsers && setFoundUsers(searchUsers) })
+		searchUsers({
+			variables: { username, excludedIds: selectedUsers.map((user) => user.id) },
+			onCompleted: ({ searchUsers }) => searchUsers && setFoundUsers(searchUsers)
+		})
 	}
 
 	const addSelectedUser = (addedUser: SearchedUser) => {

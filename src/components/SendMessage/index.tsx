@@ -1,20 +1,20 @@
-import { ChangeEventHandler, FormEventHandler, KeyboardEventHandler, useContext, useEffect, useRef, useState } from 'react'
-import { AppContext } from '../Context/AppContext'
-import { useSession } from 'next-auth/react'
-import { useMutation } from '@apollo/client'
 import MessageOperations from '@/graphql/operations/message'
-import { Message, Mutation, MutationSendMessageArgs, User } from '@/graphql/types'
+import { Message, Mutation, MutationSendMessageArgs } from '@/graphql/types'
+import { useMutation } from '@apollo/client'
 import ObjectID from 'bson-objectid'
+import { useSession } from 'next-auth/react'
+import { KeyboardEventHandler, useContext, useEffect, useRef, useState } from 'react'
+import { AppContext } from '../Context/AppContext'
 
-type Mess = Message & MutationSendMessageArgs
+type Mess = Message & { senderId: string }
 
 export const SendMessage = () => {
-	const { conversationId, selectedConversation, conversations } = useContext(AppContext)
-	const { data: userData } = useSession({ required: true })
+	const { selectedConversation } = useContext(AppContext)
+	const { data: userData } = useSession()
 
 	const [message, setMessage] = useState('')
 
-	const [sendMessage, { data }] = useMutation<Mutation, MutationSendMessageArgs>(MessageOperations.Mutation.sendMessage)
+	const [sendMessage] = useMutation<Mutation, MutationSendMessageArgs>(MessageOperations.Mutation.sendMessage)
 
 	const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -29,9 +29,7 @@ export const SendMessage = () => {
 			if (!userData?.user) throw new Error('Not authorized')
 			const { id: senderId } = userData.user
 			const conversationId = selectedConversation?.id as string
-			const messageId = new ObjectID().toString()
 			const newMessage: MutationSendMessageArgs = {
-				id: messageId,
 				senderId,
 				conversationId,
 				body: message.trim()
@@ -39,14 +37,16 @@ export const SendMessage = () => {
 			setMessage('')
 			const { data, errors } = await sendMessage({
 				variables: newMessage,
-				optimisticResponse: { sendMessage: true },
-				update: (cache) => {
+				optimisticResponse: { sendMessage: new ObjectID().toString() },
+				update: (cache, data) => {
+					if (!data.data) return
 					const existing = cache.readQuery<{ messages: Mess[] }>({
 						query: MessageOperations.Query.messages,
 						variables: { conversationId }
 					}) as { messages: Mess[] }
 
 					const { email, id, username, image } = userData.user
+
 					cache.writeQuery<{ messages: Mess[] }, { conversationId: string }>({
 						query: MessageOperations.Query.messages,
 						variables: { conversationId },
@@ -55,11 +55,9 @@ export const SendMessage = () => {
 							messages: [
 								...existing.messages,
 								{
-									id: messageId,
-									conversationId,
-									body: message.trim(),
+									...newMessage,
+									id: data.data?.sendMessage as string,
 									createdAt: new Date(Date.now()),
-									senderId: id,
 									sender: {
 										id,
 										username,
@@ -106,20 +104,3 @@ export const SendMessage = () => {
 		</div>
 	)
 }
-
-// const messages = cache.readFragment<{
-// 	messages: Message[]
-// }>({
-// 	id: `Message:${messageId}`,
-// 	fragment: gql`
-// 			fragment Messages on Conversation {
-// 				messages {
-// 					message {
-// 						${MessageFields}
-// 					}
-// 				}
-// 			}
-// 		`
-// })
-
-// if (!messages) return
