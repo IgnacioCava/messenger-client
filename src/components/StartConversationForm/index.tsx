@@ -1,12 +1,15 @@
 import { is } from '@/util/functions'
 import { SearchUser, UserList, UserTags } from '@components'
 import { useContext } from 'react'
-import { AppContext } from '../Context/AppContext'
-import { StartConversationContext } from '../Context/StartConversationContext'
+import { AppContext } from '../../context/AppContext'
+import { StartConversationContext } from '../../context/StartConversationContext'
+import useEnterCreatedConversation from '@/hooks/useEnterCreatedConversation'
 
 export const StartConversationForm = () => {
 	const { showConversationForm: isOpen } = useContext(AppContext)
 	const { closeForm, onCreateConversation } = useContext(StartConversationContext)
+
+	useEnterCreatedConversation()
 
 	return (
 		<div className={`col z-10 ${is(isOpen, 'translate-x-0', 'translate-x-[-100%]')} overflow-hidden transition duration-300 absolute chat-list-responsive h-full bg-zinc-800 pt-[56px]`}>

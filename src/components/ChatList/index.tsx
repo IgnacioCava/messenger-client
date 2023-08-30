@@ -2,8 +2,8 @@ import { is } from '@/util/functions'
 import { Logout, StartConversationForm, ConversationList, ItemWithIcon } from '@components'
 import { useSession } from 'next-auth/react'
 import { useContext } from 'react'
-import { AppContext } from '../Context/AppContext'
-import { StartConversationContextProvider } from '../Context/StartConversationContext'
+import { AppContext } from '../../context/AppContext'
+import { StartConversationContextProvider } from '../../context/StartConversationContext'
 
 export const ChatList = () => {
 	const { showChatList, toggleConversationForm } = useContext(AppContext)

@@ -1,8 +1,9 @@
-import { AppContext } from '@/components/Context/AppContext'
+import { AppContext } from '@/context/AppContext'
 import ConversationOperations from '@/graphql/operations/conversation'
-import { Conversation, ConversationParticipant, MutationMarkAsReadArgs } from '@/graphql/types'
+import { Conversation, MutationMarkAsReadArgs } from '@/graphql/types'
+import updateMessageReadStatus from '@/graphql/util/updateMessageReadStatus'
 import { OpReturnType } from '@/util/utilityTypes'
-import { gql, useMutation } from '@apollo/client'
+import { useMutation } from '@apollo/client'
 import { useSession } from 'next-auth/react'
 import { useContext } from 'react'
 import { useConversationQuery } from './useConversationQuery'
@@ -27,64 +28,15 @@ const useSelectConversation = () => {
 				optimisticResponse: {
 					markAsRead: true
 				},
-				update: (cache) => {
-					const participantsFragment = cache.readFragment<{
-						users: ConversationParticipant[]
-					}>({
-						id: `Conversation:${conversationId}`,
-						fragment: gql`
-							fragment Participants on Conversation {
-								users {
-									user {
-										id
-										username
-									}
-									hasSeenLatestMessage
-								}
-							}
-						`
-					})
-
-					if (!participantsFragment) return
-
-					const participants = [...participantsFragment.users]
-
-					const userParticipantIdx = participants.findIndex((p) => p.user.id === userData.user.id)
-
-					if (userParticipantIdx === -1) return
-
-					const userParticipant = participants[userParticipantIdx]
-
-					participants[userParticipantIdx] = {
-						...userParticipant,
-						hasSeenLatestMessage: true
-					}
-
-					cache.writeFragment({
-						id: `Conversation:${conversationId}`,
-						fragment: gql`
-							fragment UpdatedParticipant on Conversation {
-								users {
-									user {
-										id
-										username
-									}
-									hasSeenLatestMessage
-								}
-							}
-						`,
-						data: {
-							users: participants
-						}
-					})
-				}
+				update: (cache) => updateMessageReadStatus(cache, userData, conversationId)
 			})
 		} catch (error) {
 			console.log('onViewConversation error', error)
 		}
 	}
 
-	const onSelectConversation = async (conversation: Conversation, hasSeenLatestMessage: boolean | undefined) => {
+	const onSelectConversation = async (conversation: Conversation | null, hasSeenLatestMessage?: boolean) => {
+		if (!conversation) return setSelectedConversation(null)
 		setSelectedConversation(conversation)
 		addQuery('conversationId', conversation.id)
 		if (hasSeenLatestMessage) return

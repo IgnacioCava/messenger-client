@@ -1,6 +1,6 @@
 import { ItemWithIcon, Skeleton } from '@components'
 import { useContext } from 'react'
-import { AppContext } from '../Context/AppContext'
+import { AppContext } from '../../context/AppContext'
 import { usernames, formatTime } from '@/util/functions'
 import { useSession } from 'next-auth/react'
 import useSelectConversation from '@/hooks/useSelectConversation'

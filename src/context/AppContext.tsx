@@ -1,25 +1,12 @@
 import ConversationOperations from '@/graphql/operations/conversation'
 import { Conversation, MutationDeleteConversationArgs } from '@/graphql/types'
 import { useConversationQuery } from '@/hooks/useConversationQuery'
-import useSelectConversation from '@/hooks/useSelectConversation'
 import useSubscribeToConversationEvents from '@/hooks/useSubscribeToConversationEvents'
 import { OpReturnType } from '@/util/utilityTypes'
-import { useMutation, useQuery } from '@apollo/client'
+import { useMutation } from '@apollo/client'
 import { useSearchParams } from 'next/navigation'
-import { ReactNode, createContext, useEffect, useState } from 'react'
-
-interface AppContextValues {
-	showChatList: boolean
-	toggleChatList: (force?: boolean) => void
-	showConversationForm: boolean
-	toggleConversationForm: (force?: boolean) => void
-	conversations: Conversation[] | undefined
-	conversationId: string
-	selectedConversation: Conversation | null
-	setSelectedConversation: (conversation: Conversation) => void
-	loading: boolean
-	onDeleteConversation: (conversationId: string) => Promise<void>
-}
+import { createContext, useState } from 'react'
+import { AppContextValues, ContextProps } from './types'
 
 const defaultContext: AppContextValues = {
 	showChatList: true,
@@ -36,16 +23,10 @@ const defaultContext: AppContextValues = {
 
 export const AppContext = createContext<AppContextValues>(defaultContext)
 
-interface AppContextProps {
-	children: ReactNode
-}
-
-export const AppContextProvider: React.FC<AppContextProps> = ({ children }) => {
+export const AppContextProvider: React.FC<ContextProps> = ({ children }) => {
 	const [showChatList, toggleChatList] = useState(true)
 	const [showConversationForm, toggleConversationForm] = useState(false)
 	const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
-
-	const { onSelectConversation } = useSelectConversation()
 
 	const { resetQuery } = useConversationQuery()
 
@@ -67,12 +48,6 @@ export const AppContextProvider: React.FC<AppContextProps> = ({ children }) => {
 			console.log('onDeleteConversation error', error)
 		}
 	}
-
-	useEffect(() => {
-		const conversation = data?.conversations.find((conv) => conv.id === conversationId)
-		if (!conversation) return
-		onSelectConversation(conversation, false)
-	}, [conversationId])
 
 	const value: AppContextValues = {
 		selectedConversation,

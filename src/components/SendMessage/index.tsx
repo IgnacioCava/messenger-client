@@ -1,5 +1,5 @@
 import { useContext } from 'react'
-import { ConversationContext } from '../Context/ConversationContext'
+import { ConversationContext } from '../../context/ConversationContext'
 
 export const SendMessage = () => {
 	const { message, setMessage, onKeyDown, elementRef } = useContext(ConversationContext)

@@ -1,4 +1,4 @@
-import { AppContext } from '@/components/Context/AppContext'
+import { AppContext } from '@/context/AppContext'
 import { OpReturnType } from '@/util/utilityTypes'
 import { useQuery } from '@apollo/client'
 import { useContext, useEffect } from 'react'

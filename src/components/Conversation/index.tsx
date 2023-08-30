@@ -1,8 +1,8 @@
-import { is, usernames, formatTime } from '@/util/functions'
-import { UserIcon, Message, SendMessage, ItemWithIcon, Messages } from '@components'
-import { useContext } from 'react'
-import { AppContext } from '../Context/AppContext'
+import { is, usernames } from '@/util/functions'
+import { ItemWithIcon, Messages, SendMessage } from '@components'
 import { useSession } from 'next-auth/react'
+import { useContext } from 'react'
+import { AppContext } from '../../context/AppContext'
 
 export const Conversation = () => {
 	const { showChatList, toggleChatList, selectedConversation: convo, toggleConversationForm, showConversationForm, onDeleteConversation } = useContext(AppContext)

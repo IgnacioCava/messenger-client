@@ -7,7 +7,7 @@ import { useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 
 const useSubscribeToConversationEvents = () => {
-	const { markMessageAsRead } = useSelectConversation()
+	const { markMessageAsRead, onSelectConversation } = useSelectConversation()
 
 	const conversationId = useSearchParams().get('conversationId') || ''
 
@@ -67,6 +67,7 @@ const useSubscribeToConversationEvents = () => {
 
 			const { conversations } = existingConversations
 			const { id: deletedId } = subscriptionData.data?.conversationDeleted
+			onSelectConversation(null)
 			client.writeQuery<OpReturnType<'conversations'>>({
 				query: ConversationOperations.Queries.conversations,
 				data: {

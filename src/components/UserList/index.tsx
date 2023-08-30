@@ -1,6 +1,6 @@
 import { ItemWithIcon } from '@components'
 import { useContext } from 'react'
-import { StartConversationContext } from '../Context/StartConversationContext'
+import { StartConversationContext } from '../../context/StartConversationContext'
 
 export const UserList = () => {
 	const { foundUsers, ready, addUser } = useContext(StartConversationContext)
