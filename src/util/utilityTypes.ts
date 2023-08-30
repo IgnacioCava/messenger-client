@@ -1,4 +1,4 @@
-import { Conversation, Mutation, Query, Subscription } from '@/graphql/types'
+import { Mutation, Query, Subscription } from '@/graphql/types'
 
 type AllOps = Query & Mutation & Subscription
 

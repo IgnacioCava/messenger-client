@@ -1,8 +1,4 @@
-interface SkeletonProps {
-	className: string
-	childrenClassName: string
-	count: number
-}
+import { SkeletonProps } from '@components'
 
 export const Skeleton = ({ className, count, childrenClassName }: SkeletonProps) => {
 	return (

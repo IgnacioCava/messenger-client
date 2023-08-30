@@ -1,6 +1,5 @@
-import { FormEventHandler, useContext, useEffect, useRef, useState } from 'react'
-import { AppContext } from '../Context/AppContext'
-import { StartConversationContext } from '../Context/StartConversationContext'
+import { FormEventHandler, useContext, useState } from 'react'
+import { StartConversationContext } from '../../context/StartConversationContext'
 import { SearchIcon, Spinner } from '../svgComponents'
 
 export const SearchUser = () => {

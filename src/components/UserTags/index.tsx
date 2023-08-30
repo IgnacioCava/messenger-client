@@ -1,11 +1,6 @@
-import { SearchedUser } from '@/graphql/types'
-import { Close } from '@components'
+import { Close, UserTagProps } from '@components'
 import { useContext } from 'react'
-import { StartConversationContext } from '../Context/StartConversationContext'
-
-interface UserTagProps {
-	user: SearchedUser
-}
+import { StartConversationContext } from '../../context/StartConversationContext'
 
 const UserTag = ({ user }: UserTagProps) => {
 	const { removeUser } = useContext(StartConversationContext)

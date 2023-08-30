@@ -3,11 +3,9 @@
 import useCreateUsername from '@/hooks/useCreateUsername'
 import { useSession } from 'next-auth/react'
 import { useState } from 'react'
-import { SignInGoogleButton, SignOutButton } from '../buttons'
+import { SignInGoogleButton, SignOutButton } from '../AuthButtons'
 
-interface AuthProps {}
-
-export const Auth: React.FC<AuthProps> = () => {
+export const Auth: React.FC = () => {
 	const { data: session } = useSession()
 	const [username, setUsername] = useState('')
 	const { onCreateUsername } = useCreateUsername()

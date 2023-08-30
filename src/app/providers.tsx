@@ -2,7 +2,6 @@
 
 import ApolloProvider from '@/graphql/apolloClient/apolloProvider'
 import { NextAuthProvider } from './nextAuthProvider'
-import { AppContextProvider } from '@/components/Context/AppContext'
 
 interface ProviderProps {
 	children: React.ReactNode
@@ -11,9 +10,7 @@ interface ProviderProps {
 const Providers = ({ children }: ProviderProps) => {
 	return (
 		<ApolloProvider>
-			<NextAuthProvider>
-				<AppContextProvider>{children}</AppContextProvider>
-			</NextAuthProvider>
+			<NextAuthProvider>{children}</NextAuthProvider>
 		</ApolloProvider>
 	)
 }

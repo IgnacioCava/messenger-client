@@ -1,16 +1,7 @@
-import { UserIcon } from '@components'
+import { ItemWithIconProps, UserIcon } from '@components'
 import { useContext } from 'react'
-import { AppContext } from '../Context/AppContext'
+import { AppContext } from '../../context/AppContext'
 import { is } from '@/util/functions'
-
-interface ItemWithIconProps {
-	name?: string
-	message?: string
-	time?: string
-	onClick?: () => void
-	id?: string
-	hasUpdate?: boolean
-}
 
 export const ItemWithIcon = ({ name = 'test user', message, time, onClick, id, hasUpdate }: ItemWithIconProps) => {
 	const { conversationId } = useContext(AppContext)

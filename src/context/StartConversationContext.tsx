@@ -2,27 +2,11 @@ import ConversationOperations from '@/graphql/operations/conversation'
 import UserOperations from '@/graphql/operations/user'
 import { Mutation, MutationCreateConversationArgs, Query, QuerySearchUsersArgs, SearchedUser } from '@/graphql/types'
 import { useConversationQuery } from '@/hooks/useConversationQuery'
-import { ApolloError, useLazyQuery, useMutation } from '@apollo/client'
+import { useLazyQuery, useMutation } from '@apollo/client'
 import { useSession } from 'next-auth/react'
-import { ReactNode, RefObject, createContext, useContext, useEffect, useRef, useState } from 'react'
+import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { AppContext } from './AppContext'
-
-type DisplayableUser = SearchedUser & { display?: boolean }
-
-interface StartConversationContextValues {
-	foundUsers: DisplayableUser[] | undefined | null
-	loading: boolean
-	error: ApolloError | undefined
-	ready: boolean
-	loadingCreateConversation: boolean
-	searchUsers: (username: string) => void
-	selectedUsers: SearchedUser[]
-	addUser: (addedUser: SearchedUser) => void
-	removeUser: (removedUserId: SearchedUser['id']) => void
-	closeForm: () => void
-	onCreateConversation: () => void
-	formRef: RefObject<HTMLFormElement> | null
-}
+import type { DisplayableUser, ContextProps, StartConversationContextValues } from './types'
 
 const defaultContext: StartConversationContextValues = {
 	foundUsers: [],
@@ -41,11 +25,7 @@ const defaultContext: StartConversationContextValues = {
 
 export const StartConversationContext = createContext<StartConversationContextValues>(defaultContext)
 
-interface StartConversationContextProps {
-	children: ReactNode
-}
-
-export const StartConversationContextProvider: React.FC<StartConversationContextProps> = ({ children }) => {
+export const StartConversationContextProvider: React.FC<ContextProps> = ({ children }) => {
 	const [selectedUsers, setSelectedUsers] = useState<SearchedUser[]>([])
 	const [foundUsers, setFoundUsers] = useState<DisplayableUser[] | null>(null)
 	const { showConversationForm, toggleConversationForm } = useContext(AppContext)
