@@ -1,10 +1,10 @@
 import ConversationOperations from '@/graphql/operations/conversation'
 import UserOperations from '@/graphql/operations/user'
 import { Mutation, MutationCreateConversationArgs, Query, QuerySearchUsersArgs, SearchedUser } from '@/graphql/types'
-import { useConversationQuery } from '@/hooks/useAddQuery'
+import { useConversationQuery } from '@/hooks/useConversationQuery'
 import { ApolloError, useLazyQuery, useMutation } from '@apollo/client'
 import { useSession } from 'next-auth/react'
-import { ReactNode, createContext, useContext, useState } from 'react'
+import { ReactNode, RefObject, createContext, useContext, useEffect, useRef, useState } from 'react'
 import { AppContext } from './AppContext'
 
 type DisplayableUser = SearchedUser & { display?: boolean }
@@ -21,6 +21,7 @@ interface StartConversationContextValues {
 	removeUser: (removedUserId: SearchedUser['id']) => void
 	closeForm: () => void
 	onCreateConversation: () => void
+	formRef: RefObject<HTMLFormElement> | null
 }
 
 const defaultContext: StartConversationContextValues = {
@@ -34,7 +35,8 @@ const defaultContext: StartConversationContextValues = {
 	addUser: () => {},
 	removeUser: () => {},
 	closeForm: () => {},
-	onCreateConversation: () => {}
+	onCreateConversation: () => {},
+	formRef: null
 }
 
 export const StartConversationContext = createContext<StartConversationContextValues>(defaultContext)
@@ -46,8 +48,14 @@ interface StartConversationContextProps {
 export const StartConversationContextProvider: React.FC<StartConversationContextProps> = ({ children }) => {
 	const [selectedUsers, setSelectedUsers] = useState<SearchedUser[]>([])
 	const [foundUsers, setFoundUsers] = useState<DisplayableUser[] | null>(null)
-	const { toggleConversationForm } = useContext(AppContext)
+	const { showConversationForm, toggleConversationForm } = useContext(AppContext)
 	const { data } = useSession()
+
+	const formRef = useRef<HTMLFormElement>(null)
+
+	useEffect(() => {
+		if (!showConversationForm) formRef.current?.reset()
+	}, [showConversationForm])
 
 	const { addQuery } = useConversationQuery()
 
@@ -106,7 +114,8 @@ export const StartConversationContextProvider: React.FC<StartConversationContext
 		addUser: addSelectedUser,
 		removeUser: removeSelectedUser,
 		closeForm,
-		onCreateConversation
+		onCreateConversation,
+		formRef
 	}
 
 	return <StartConversationContext.Provider value={value}>{children}</StartConversationContext.Provider>

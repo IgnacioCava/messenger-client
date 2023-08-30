@@ -1,11 +1,11 @@
-import { Message as MessageType, Query, QueryMessagesArgs } from '@/graphql/types'
-import { is, formatTime } from '@/util/functions'
-import { useQuery } from '@apollo/client'
-import { Spinner, UserIcon, Skeleton } from '@components'
-import MessageOperations from '@/graphql/operations/message'
-import { useContext, useEffect, useRef } from 'react'
-import { AppContext } from '../Context/AppContext'
+import { Message as MessageType } from '@/graphql/types'
+import { useAutoScroll } from '@/hooks/useAutoScroll'
+import { formatTime, is } from '@/util/functions'
+import { Skeleton, UserIcon } from '@components'
 import { useSession } from 'next-auth/react'
+import { useContext } from 'react'
+import { ConversationContext } from '../Context/ConversationContext'
+import useSubscribeToMessages from '@/hooks/useSubscribeToMessages'
 
 const testCases = [
 	'Lorem ipsum dolor sit amet, consectetur adi',
@@ -40,46 +40,14 @@ export const Message = ({ data }: { data: MessageType }) => {
 	)
 }
 
-export const Messages = ({ conversationId }: { conversationId: string }) => {
-	const { data: userData } = useSession()
-
-	const { data, loading, error, subscribeToMore } = useQuery<Query, QueryMessagesArgs>(MessageOperations.Query.messages, {
-		variables: { conversationId: conversationId as string },
-		onError: ({ message }) => {
-			console.log(message)
-		}
-	})
-
-	const messagesContainer = useRef<HTMLDivElement>(null)
-
-	useEffect(() => {
-		if (data?.messages) messagesContainer.current?.scrollTo({ top: messagesContainer.current?.scrollHeight })
-	}, [data?.messages])
-
-	useEffect(() => {
-		const unsubscribe = subscribeToMore({
-			document: MessageOperations.Subscription.messageSent,
-			variables: { conversationId },
-			updateQuery: (prev, { subscriptionData }: { subscriptionData: { data: { messageSent: MessageType } } }) => {
-				if (!subscriptionData.data) return prev
-
-				const newMessage = subscriptionData.data.messageSent
-				if (newMessage.sender.id === userData?.user.id) return prev
-				return Object.assign({}, prev, {
-					messages: [...prev.messages, newMessage]
-				})
-			},
-			onError: (error) => {
-				console.log('message', error)
-			}
-		})
-		if (conversationId) return () => unsubscribe()
-	}, [subscribeToMore, conversationId])
+export const Messages = () => {
+	const { messages, loading } = useSubscribeToMessages()
+	const { ref } = useAutoScroll<HTMLDivElement>({ deps: [messages] })
 
 	return (
-		<div ref={messagesContainer} className='p-2 xl:p-4 [&>*:not(:first-child)]:mt-4 overflow-auto h-full'>
+		<div ref={ref} className='p-2 xl:p-4 [&>*:not(:first-child)]:mt-4 overflow-auto h-full'>
 			{loading && <Skeleton count={10} className='h-full col overflow-hidden [&>*:nth-child(even)]:self-end ' childrenClassName='w-[45%] h-[36px] rounded mt-2' />}
-			{data?.messages?.map((message) => <Message data={message} key={message.id} />)}
+			{messages?.map((message) => <Message data={message} key={message.id} />)}
 		</div>
 	)
 }

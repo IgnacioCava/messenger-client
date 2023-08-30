@@ -6,19 +6,12 @@ import { SearchIcon, Spinner } from '../svgComponents'
 export const SearchUser = () => {
 	const [username, setUsername] = useState('')
 
-	const formRef = useRef<HTMLFormElement>(null)
-
-	const { searchUsers, loading, error } = useContext(StartConversationContext)
-	const { showConversationForm } = useContext(AppContext)
+	const { searchUsers, loading, error, formRef } = useContext(StartConversationContext)
 
 	const onSubmit: FormEventHandler = (event) => {
 		event.preventDefault()
 		if (username) searchUsers(username)
 	}
-
-	useEffect(() => {
-		if (!showConversationForm) formRef.current?.reset()
-	}, [showConversationForm])
 
 	return (
 		<>
