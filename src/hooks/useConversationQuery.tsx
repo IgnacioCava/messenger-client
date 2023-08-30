@@ -1,4 +1,5 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useEffect } from 'react'
 
 export const useConversationQuery = () => {
 	const router = useRouter()
@@ -12,6 +13,10 @@ export const useConversationQuery = () => {
 	}
 
 	const resetQuery = () => router.replace('/')
+
+	useEffect(() => {
+		resetQuery()
+	}, [])
 
 	return { addQuery, resetQuery }
 }

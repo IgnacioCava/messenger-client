@@ -3,10 +3,13 @@ import { useContext } from 'react'
 import { AppContext } from '../Context/AppContext'
 import { usernames, formatTime } from '@/util/functions'
 import { useSession } from 'next-auth/react'
+import useSelectConversation from '@/hooks/useSelectConversation'
 
 export const ConversationList = () => {
-	const { conversations, onSelectConversation, loading } = useContext(AppContext)
+	const { conversations, loading } = useContext(AppContext)
 	const { data: userData } = useSession()
+
+	const { onSelectConversation } = useSelectConversation()
 
 	return (
 		<div className='s-full overflow-auto'>

@@ -19,7 +19,7 @@ export const Conversation = () => {
 						<ItemWithIcon key={convo.id} name={usernames(convo.users, userData?.user.id)} />
 						<button onClick={() => onDeleteConversation(convo.id)}>DELETE</button>
 					</div>
-					<Messages conversationId={convo.id} />
+					<Messages />
 					<SendMessage />
 				</>
 			) : (

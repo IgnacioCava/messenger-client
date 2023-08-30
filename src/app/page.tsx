@@ -1,6 +1,7 @@
 'use client'
 
-import { Auth, Chat, ChatList, Conversation } from '@/components'
+import { Auth, ChatList, Conversation } from '@/components'
+import { ConversationContextProvider } from '@/components/Context/ConversationContext'
 import { useSession } from 'next-auth/react'
 
 export default function Home() {
@@ -13,7 +14,9 @@ export default function Home() {
 			{session?.user.username ? (
 				<>
 					<ChatList />
-					<Conversation />
+					<ConversationContextProvider>
+						<Conversation />
+					</ConversationContextProvider>
 				</>
 			) : (
 				<Auth />

@@ -38,3 +38,12 @@ export const formatTime = (updatedAt: Date, locale?: Record<string, string>) => 
 		}
 	})
 }
+
+/**
+ * Resize `target` textarea to fit content
+ * @param target - `HTMLTextAreaElement`
+ */
+export const autoResize = (target: HTMLTextAreaElement) => {
+	target.style.height = '0'
+	target.style.height = target.scrollHeight + 'px'
+}
