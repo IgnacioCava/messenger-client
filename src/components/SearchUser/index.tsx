@@ -14,12 +14,12 @@ export const SearchUser = () => {
 
 	return (
 		<>
-			<form ref={formRef} onSubmit={onSubmit} className='flex bg-zinc-900 border border-slate-600 rounded mx-3'>
+			<form ref={formRef} onSubmit={onSubmit} className='flex bg-gray-200 p-1 rounded-xl mx-3'>
 				<input
 					onChange={({ target }) => setUsername(target.value)}
 					type='text'
 					placeholder='Search user'
-					className='font-light outline-none text-zinc-200 bg-transparent placeholder:text-zinc-400 pl-3 py-1 rounded w-full'
+					className='font-normal outline-none text-zinc-800 bg-transparent placeholder:text-gray-500 pl-3 py-1 rounded w-full'
 				/>
 				<button type='submit' className=' px-3'>
 					{loading ? <Spinner className='h-4 w-4' /> : <SearchIcon className='fill-slate-400 h-4 w-4' />}

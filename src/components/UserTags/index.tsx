@@ -6,9 +6,9 @@ const UserTag = ({ user }: UserTagProps) => {
 	const { removeUser } = useContext(StartConversationContext)
 
 	return (
-		<span key={user.id} className='py-1 px-2 rounded-sm bg-slate-700 flex items-center gap-2 h-8'>
+		<span key={user.id} className='py-2 px-2 rounded bg-gray-300 text-black flex items-center gap-2 h-9'>
 			<span>{user.username}</span>
-			<Close onClick={() => removeUser(user.id)} className='w-5 h-5 fill-white cursor-pointer' />
+			<Close onClick={() => removeUser(user.id)} className='w-5 h-5 fill-black cursor-pointer' />
 		</span>
 	)
 }

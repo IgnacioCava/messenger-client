@@ -11,7 +11,7 @@ export default function Home() {
 	if (status === 'loading') return null
 
 	return (
-		<div className='flex s-full xl:w-app-max xl:max-w-app-max xl:h-[95%] m-auto'>
+		<div className='flex s-full m-auto bg-gray-200'>
 			{session?.user.username ? (
 				<AppContextProvider>
 					<ChatList />

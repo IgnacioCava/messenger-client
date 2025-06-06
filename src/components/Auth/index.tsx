@@ -21,7 +21,7 @@ export const Auth: React.FC = () => {
 				</>
 			) : (
 				<>
-					<p>Messenger</p>
+					<h1 className='text-3xl text-gray-700'>Messenger</h1>
 					<SignInGoogleButton />
 				</>
 			)}

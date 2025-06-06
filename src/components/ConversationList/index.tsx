@@ -12,7 +12,7 @@ export const ConversationList = () => {
 	const { onSelectConversation } = useSelectConversation()
 
 	return (
-		<div className='s-full overflow-auto'>
+		<div className='s-full overflow-auto flex flex-col gap-1'>
 			{loading && <Skeleton count={5} className='p-3 h-full col overflow-hidden [&>*:nth-child(even)]:self-end [&>*:not(:first-child)]:mt-6 ' childrenClassName='w-full h-[40px] rounded' />}
 
 			{conversations?.map((conversation) => {

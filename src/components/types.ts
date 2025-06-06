@@ -11,6 +11,7 @@ export interface ItemWithIconProps {
 
 export interface MessageProps {
 	data: Message
+	prevMessageSender: string
 }
 
 export interface SkeletonProps {
