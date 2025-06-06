@@ -3,7 +3,7 @@ import { signIn, signOut } from 'next-auth/react'
 
 const SignInGoogleButton = () => {
 	return (
-		<button className='bg-indigo-500 rounded p-2' onClick={() => signIn('google')}>
+		<button className='bg-indigo-500 rounded p-2 px-3 text-gray-200 font-medium' onClick={() => signIn('google')}>
 			Sign in
 		</button>
 	)
