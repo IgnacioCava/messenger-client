@@ -53,10 +53,14 @@ export const ConversationContextProvider: React.FC<ContextProps> = ({ children }
 	}
 
 	const onKeyDown = async <T extends HTMLElement>(event: KeyboardEvent<T>) => {
-		const { key, ctrlKey, altKey, shiftKey } = event
+		const { key, ctrlKey, altKey, shiftKey, currentTarget } = event
+
 		if (key === 'Enter') {
 			event.preventDefault()
-			ctrlKey || altKey || shiftKey ? setMessage(message + '\n') : onSendMessage()
+			if (ctrlKey || altKey || shiftKey) {
+				setMessage(message + '\n')
+				//currentTarget.scrollBy({ top: 24 })
+			} else onSendMessage()
 		}
 	}
 

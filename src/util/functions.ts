@@ -13,7 +13,7 @@ export const is = (condition: boolean, className: string, other?: string) => (co
  */
 export const usernames = (users: ConversationParticipant[], currentUserId?: string) =>
 	users
-		.filter((user) => user.id !== currentUserId)
+		.filter((user) => user.user.id !== currentUserId)
 		.map(({ user }) => user.username)
 		.join(', ')
 
