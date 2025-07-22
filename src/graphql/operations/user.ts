@@ -7,6 +7,7 @@ export default {
 				searchUsers(username: $username, excludedIds: $excludedIds) {
 					id
 					username
+					image
 				}
 			}
 		`

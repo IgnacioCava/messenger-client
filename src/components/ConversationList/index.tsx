@@ -18,6 +18,7 @@ export const ConversationList = () => {
 			{conversations?.map((conversation) => {
 				const { users, id, updatedAt, lastMessage } = conversation
 				const hasSeenLatestMessage = users.find((user) => user.user.id === userData?.user.id)?.hasSeenLatestMessage
+				const user = users.find((u) => u.user.id !== userData?.user.id)?.user
 				return (
 					<ItemWithIcon
 						key={id}
@@ -27,6 +28,7 @@ export const ConversationList = () => {
 						name={usernames(users, userData?.user.id)}
 						onClick={() => onSelectConversation(conversation, !!hasSeenLatestMessage)}
 						hasUpdate={!hasSeenLatestMessage}
+						image={user?.image}
 					/>
 				)
 			})}

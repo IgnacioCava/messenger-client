@@ -12,7 +12,7 @@ export const UserList = () => {
 			) : (
 				ready &&
 				foundUsers?.map((user) => {
-					return user.display === false ? null : <ItemWithIcon id={user.id} key={user.id} onClick={() => addUser(user)} name={user.username} />
+					return user.display === false ? null : <ItemWithIcon id={user.id} key={user.id} onClick={() => addUser(user)} name={user.username} image={user.image} />
 				})
 			)}
 		</div>

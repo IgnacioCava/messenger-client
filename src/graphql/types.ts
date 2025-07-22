@@ -113,6 +113,7 @@ export type SearchedUser = {
 	__typename?: 'SearchedUser'
 	id: Scalars['String']['output']
 	username: Scalars['String']['output']
+	image: Scalars['String']['output']
 }
 
 export type Subscription = {

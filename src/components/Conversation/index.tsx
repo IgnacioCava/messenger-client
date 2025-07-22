@@ -16,7 +16,7 @@ export const Conversation = () => {
 							<button className='block lg:hidden aspect-square w-10 text-white bg-indigo-500' onClick={() => toggleChatList()}>
 								{is(showChatList, '<-', '->')}
 							</button>
-							<ItemWithIcon key={convo.id} name={usernames(convo.users, userData?.user.id)} />
+							<ItemWithIcon key={convo.id} name={usernames(convo.users, userData?.user.id)} image={convo.users.find((u) => u.user.id !== userData?.user.id)?.user.image} />
 							<button className='bg-indigo-500 p-2' onClick={() => onDeleteConversation(convo.id)}>
 								Delete conversation
 							</button>

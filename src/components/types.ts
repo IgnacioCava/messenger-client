@@ -7,6 +7,7 @@ export interface ItemWithIconProps {
 	onClick?: () => void
 	id?: string
 	hasUpdate?: boolean
+	image?: string
 }
 
 export interface MessageProps {
@@ -27,6 +28,7 @@ export interface StartConversationButtonProps {
 export interface UserIconProps {
 	right?: boolean
 	notification?: boolean
+	image?: string
 }
 
 export interface UserTagProps {

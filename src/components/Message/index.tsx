@@ -10,9 +10,10 @@ export const Message = ({ data, prevMessageSender }: MessageProps) => {
 	const { body, createdAt, sender } = data
 	const right = sender.id === userData?.user.id
 	const isPrevMessageFromSameSender = sender.id === prevMessageSender
+	console.log({ sender })
 	return (
 		<div className={`flex gap-2 ${is(right, 'justify-end')}  ${isPrevMessageFromSameSender ? 'm-0' : ''}`}>
-			{!isPrevMessageFromSameSender ? <UserIcon right={right} /> : null}
+			{!isPrevMessageFromSameSender ? <UserIcon right={right} image={sender.image} /> : null}
 			<div className={`col overflow-hidden w-full ${is(right, 'items-end')} ${isPrevMessageFromSameSender ? '' : 'gap-2'}`}>
 				<p className='text-sm flex gap-2'>
 					<>
