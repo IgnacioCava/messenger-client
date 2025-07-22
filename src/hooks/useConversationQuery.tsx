@@ -9,14 +9,13 @@ export const useConversationQuery = () => {
 	const addQuery = (query: string, value: string) => {
 		const params = new URLSearchParams(searchParams.toString())
 		params.set(query, value)
-		router.replace(`${pathname}?${params}`)
+		//router.replace(`${pathname}?${params}`)
+		router.push(`${pathname}?${params}`)
 	}
 
-	const resetQuery = () => router.replace('/')
-
-	useEffect(() => {
-		resetQuery()
-	}, [])
+	const resetQuery = () => {
+		router.replace('/')
+	}
 
 	return { addQuery, resetQuery }
 }

@@ -3,53 +3,39 @@ import { Session } from 'next-auth'
 import { ConversationParticipant } from '../types'
 
 const updateMessageReadStatus = (cache: ApolloCache<unknown>, userData: Session, conversationId: string) => {
-	const participantsFragment = cache.readFragment<{
+	const conversation = cache.readFragment<{
 		users: ConversationParticipant[]
 	}>({
 		id: `Conversation:${conversationId}`,
 		fragment: gql`
-			fragment Participants on Conversation {
+			fragment Participant on Conversation {
 				users {
 					user {
 						id
+						image
 						username
 					}
+					id
 					hasSeenLatestMessage
 				}
 			}
 		`
 	})
 
-	if (!participantsFragment) return
+	if (!conversation) return
 
-	const participants = [...participantsFragment.users]
-
-	const userParticipantIdx = participants.findIndex((p) => p.user.id === userData.user.id)
-
-	if (userParticipantIdx === -1) return
-
-	const userParticipant = participants[userParticipantIdx]
-
-	participants[userParticipantIdx] = {
-		...userParticipant,
-		hasSeenLatestMessage: true
-	}
+	const participant = conversation.users.find((p) => p.user.id === userData.user.id)
+	if (!participant) return
 
 	cache.writeFragment({
-		id: `Conversation:${conversationId}`,
+		id: `ConversationParticipant:${participant.id}`,
 		fragment: gql`
-			fragment UpdatedParticipant on Conversation {
-				users {
-					user {
-						id
-						username
-					}
-					hasSeenLatestMessage
-				}
+			fragment SeenFlag on ConversationParticipant {
+				hasSeenLatestMessage
 			}
 		`,
 		data: {
-			users: participants
+			hasSeenLatestMessage: true
 		}
 	})
 }

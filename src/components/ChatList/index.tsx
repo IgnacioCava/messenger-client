@@ -8,7 +8,7 @@ import { StartConversationContextProvider } from '../../context/StartConversatio
 export const ChatList = () => {
 	const { showChatList, toggleConversationForm } = useContext(AppContext)
 	const { data: userData } = useSession()
-	console.log(userData)
+
 	return (
 		<div id='users' className={`${is(!showChatList, 'hidden')} py-5 ml-5 pr-0 overflow-hidden relative col gap-3 float-left chat-list-responsive h-full`}>
 			<div className='flex items-center gap-3'>

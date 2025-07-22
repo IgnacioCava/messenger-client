@@ -1,4 +1,5 @@
 import ConversationOperations from '@/graphql/operations/conversation'
+import MessageOperations from '@/graphql/operations/message'
 import { Conversation, ConversationDeletedSubscriptionPayload, ConversationUpdatedSubscriptionPayload } from '@/graphql/types'
 import { OpReturnType } from '@/util/utilityTypes'
 import { useQuery, useSubscription } from '@apollo/client'
@@ -47,8 +48,30 @@ const useSubscribeToConversationEvents = () => {
 					query: ConversationOperations.Queries.conversations,
 					data: { conversations: [conversation, ...prevData.conversations.filter((conv) => conv.id !== conversation.id)] }
 				})
-			const viewing = conversation.id === conversationId
+			const newMessage = conversation.lastMessage
+			if (newMessage) {
+				try {
+					const prevMessages = client.readQuery<OpReturnType<'messages'>>({
+						query: MessageOperations.Query.messages,
+						variables: { conversationId: conversation.id }
+					})
 
+					const exists = prevMessages?.messages.some((msg) => msg.id === newMessage.id)
+
+					if (!exists) {
+						const messages = [newMessage]
+						if (prevMessages?.messages) messages.unshift(...prevMessages.messages)
+						client.writeQuery<OpReturnType<'messages'>>({
+							query: MessageOperations.Query.messages,
+							variables: { conversationId: conversation.id },
+							data: { messages }
+						})
+					}
+				} catch (err) {
+					// If messages query not yet cached, skip
+				}
+			}
+			const viewing = conversation.id === conversationId
 			if (viewing) markMessageAsRead(conversation.id)
 		},
 		onError: (error) => {

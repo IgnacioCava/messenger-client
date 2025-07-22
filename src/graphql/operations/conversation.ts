@@ -4,6 +4,7 @@ import { MessageFields } from './message'
 const ConversationFields = `
 	id
 	users {
+		id
 		user {
 			id
 			username

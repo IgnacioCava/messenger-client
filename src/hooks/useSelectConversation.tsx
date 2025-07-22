@@ -37,11 +37,11 @@ const useSelectConversation = () => {
 
 	const onSelectConversation = async (conversation: Conversation | null, hasSeenLatestMessage?: boolean) => {
 		if (!conversation) return setSelectedConversation(null)
-		setSelectedConversation(conversation)
 		addQuery('conversationId', conversation.id)
-		if (hasSeenLatestMessage) return
-		if (!userData?.user.id) return
-		await markMessageAsRead(conversation.id, hasSeenLatestMessage)
+		setSelectedConversation(conversation)
+		setTimeout(() => {
+			markMessageAsRead(conversation.id, hasSeenLatestMessage)
+		}, 50)
 	}
 
 	return {
